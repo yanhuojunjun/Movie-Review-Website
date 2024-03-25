@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>导演列表</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %} ">
+    <style>
+        body{
+            background-image: url("{% static 'img/2.webp' %}");
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Manager 管理员界面</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="/manager/movie/">电影管理</a></li>
+                <li class="active"><a href="/manager/director/">导演管理 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/manager/user/">用户管理</a></li>
+                <li><a href="/manager/review/">评论管理</a></li>
+                <li><a href="/manager/like/">收藏管理</a></li>
+                <li><a href="/manager/actor/">演员管理</a></li>
+                <li><a href="/manager/cast/">出演管理</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/login/">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div style="float: right; width: 300px">
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="search"></label>
+                <input type="text" id="search" name="search" class="form-control" value="{{ search_query }}" placeholder="请输入查询内容">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+    <div style="margin-bottom: 10px">
+        <a class="btn btn-success" href="/manager/director_add/">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+            新建导演
+        </a>
+    </div>
+    <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
+                导演列表
+            </div>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>生日</th>
+                    <th>国籍</th>
+                    <th>简介</th>
+                    <th>照片</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for director in director_list %}
+                    <tr>
+                        <td>{{ director.directorname }}</td>
+                        <td>{{ director.gender }}</td>
+                        <td>{{ director.birthday }}</td>
+                        <td>{{ director.nationality }}</td>
+                        <td>{{ director.bio|truncatechars:20 }}</td>
+                        <td>
+                            {% if director.photo %}
+                                <img src="{{ director.photo.url }}" alt="Photo of {{ director.directorname }}" width="40">
+                            {% else %}
+                                No photo
+                        {% endif %}
+        </td>
+                        <td>
+                            <a class="btn btn-primary btn-xs" href="/manager/director_update/?update_id={{ director.id }}">编辑</a>
+                            <a class="btn btn-danger btn-xs" href="/manager/director_delete/?del_id={{ director.id }}">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+</div>
+    <script rel="script" src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script rel="script" src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.js' %}"></script>
+</body>
+</html>

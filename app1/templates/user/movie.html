@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.moviename }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %}">
+    <style>
+        .rating-star {
+            color: darkgrey;
+            cursor: pointer;
+        }
+        .rating-star.selected {
+             color: gold;
+        }
+        .movie-image {
+            max-width: 300px; /* 或者你希望的任何宽度 */
+            height: auto;
+            display: block;
+        }
+        .movie-details {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .movie-info {
+            margin-left: 40px;
+        }
+        .watch-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: green;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .review {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        h1, p {
+            font-size: 18px; /* You can adjust the size as needed */
+        }
+    </style>
+</head>
+<body>
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('#favorite-button').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/add_to_favorites/',  // Update with the correct URL
+                type: 'POST',
+                data: {
+                    'user': '{{ user.id }}',  // Assuming you have movie ID in your context
+                    'movie': '{{ movie.id }}',  // Assuming you have movie ID in your context
+                    'rating': '{{ rating }}',
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'  // CSRF token for security
+                },
+                success: function(response) {
+                    if(response.success) {
+                        alert("已添加到收藏!");
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script>
+$(document).ready(function() {
+    // 初始化评分变量
+    var rating = 0;
+
+    // 处理星星点击事件
+    $('.rating-star').click(function() {
+        rating = $(this).data('value');
+        updateStars(rating);
+    });
+
+    // 更新星星的显示
+    function updateStars(rating) {
+        $('.rating-star').each(function() {
+            var starValue = $(this).data('value');
+            $(this).removeClass('selected');
+            if (starValue <= rating) {
+                $(this).addClass('selected');
+            }
+        });
+    }
+
+    // 评论按钮点击事件
+    $('#comment-button').click(function(e) {
+        e.preventDefault();
+        var comment = $('#commentText').val();
+        if (comment && rating > 0) {
+            $.ajax({
+                url: '/add_comment/',
+                type: 'POST',
+                data: {
+                    'user_id': '{{ user.id }}',
+                    'movie_id': '{{ movie.id }}',
+                    'comment': comment,
+                    'rating': rating,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success) {
+                        alert("评论添加成功!");
+                        $('#commentText').val(''); // 清空输入框
+                        updateStars(0); // 重置星星评分
+
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        } else {
+            alert("请输入评论内容并选择评分！");
+        }
+    });
+});
+</script>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">电影信息</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/login/">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+    <div class="container">
+        <!-- 电影详情 -->
+        <div class="movie-details">
+            <div>
+                {% if movie.photo %}
+                    <img src="{{ movie.photo.url }}" alt="{{ movie.moviename }}" class="movie-image img-responsive">
+                {% endif %}
+            </div>
+            <div class="movie-info">
+                <h1><strong>{{ movie.moviename }}</strong></h1>
+                <p><strong>导演</strong>: <a href="#" id="directorName" data-toggle="modal" data-target="#directorModal">{{ movie.director.directorname }}</a></p>
+
+<!-- 模态框结构 -->
+<div id="directorModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2>{{ movie.director.directorname }}</h2>
+    </div>
+    <div class="modal-body">
+      <div class="director-details">
+        <p><strong>性别：</strong>{{ movie.director.gender }}</p>
+        <p><strong>生日：</strong>{{ movie.director.birthday }}</p>
+        <p><strong>国籍：</strong>{{ movie.director.nationality }}</p>
+        <p><strong>简介：</strong>{{ movie.director.bio }}</p>
+      </div>
+      {% if movie.director.photo %}
+      <div class="director-photo">
+        <img src="{{ movie.director.photo.url }}" alt="导演照片" style="max-width:10%;height:auto;">
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+            <!-- Add this section in your template to display actors -->
+<div>
+    <strong style="font-size: 18px;margin-bottom: 15px; ">演员:</strong>
+    <span class="actor-names">
+        {% if actors %}
+            {% for actor in actors %}
+                <a href="#" class="actor-name" data-toggle="modal" data-target="#actorModal{{ actor.id }}" style="display: inline-block;margin-bottom: 15px; margin-right: 10px; vertical-align: top;font-size: 17px;">
+                    {{ actor.actorname }}
+                </a>
+
+                <!-- Modal structure for each actor -->
+                <div id="actorModal{{ actor.id }}" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span class="close">&times;</span>
+                            <h2>{{ actor.actorname }}</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>性别：</strong>{{ actor.gender }}</p>
+                            <p><strong>生日：</strong>{{ actor.birthday }}</p>
+                            <p><strong>国籍：</strong>{{ actor.nationality }}</p>
+                            <p><strong>简介：</strong>{{ actor.bio }}</p>
+                            {% if actor.photo %}
+                                <div class="actor-photo">
+                                    <img src="{{ actor.photo.url }}" alt="演员照片" style="max-width:10%;height:auto;">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <span style="font-size: 17px; margin-bottom: 20px">暂无信息</span>
+        {% endif %}
+    </span>
+</div>
+
+
+
+                <p><strong>类型</strong>: {{ movie.type }}</p>
+                <p><strong>上映时间</strong>: {{ movie.time }}</p>
+                <p><strong>制片地区</strong>: {{ movie.area }}</p>
+                <p><strong>时长</strong>: {{ movie.length }}</p>
+                <a href="{{ movie.web }}" target="_blank" class="watch-button">观看</a>
+                <a id="favorite-button" style="background-color: red;" class="watch-button">收藏</a>
+            </div>
+        </div>
+        <p><strong>简介</strong>: {{ movie.bio }}</p>
+        <!-- 添加评论的文本框 -->
+        <textarea class="form-control" id="commentText" rows="3" placeholder="请输入您的评论..."></textarea>
+        <div id="rating">
+        <i class="fa fa-star rating-star" data-value="1"></i>
+        <i class="fa fa-star rating-star" data-value="2"></i>
+        <i class="fa fa-star rating-star" data-value="3"></i>
+        <i class="fa fa-star rating-star" data-value="4"></i>
+        <i class="fa fa-star rating-star" data-value="5"></i>
+        </div>
+        <!-- 评论按钮 -->
+        <button id="comment-button" style="background-color: blue; color: white; margin-top: 10px;" class="btn btn-primary">我要评论</button>
+        <!-- 用户评论 -->
+        <div class="movie-reviews">
+            <h2>用户评论</h2>
+            {% for review in reviews %}
+            <div class="review">
+                <p><strong>{{ review.user.username }}</strong> 评分:
+                {% with '12345' as stars %}
+                {% for i in stars %}
+                    {% if forloop.counter <= review.rating %}
+                        <i class="fa fa-star" style="color: gold;"></i>  {# 显示实心星星 #}
+                        {% else %}
+                            <i class="fa fa-star" style="color: darkgrey;"></i>  {# 显示空心星星 #}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+                </p>
+                <p>{{ review.comment }}</p>
+            </div>
+            {% empty %}
+            <p>还没有评论。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.js' %}"></script>
+</body>
+</html>

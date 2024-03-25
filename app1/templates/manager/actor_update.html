@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>演员修改</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %}">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">管理员界面</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="/manager/movie/">电影管理</a></li>
+                <li><a href="/manager/director/">导演管理</a></li>
+                <li><a href="/manager/user/">用户管理</a></li>
+                <li><a href="/manager/review/">评论管理</a></li>
+                <li><a href="/manager/like/">收藏管理</a></li>
+                <li class="active"><a href="#">修改演员 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/manager/cast/">出演管理</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <!-- 可以放置一些其他的导航链接 -->
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- 主体部分 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                演员修改
+            </h3>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="col-sm-8">
+                        <input type="hidden" name="update_id" value="{{ actor.id }}">
+                        <label for="actorname" class="control-label">演员姓名</label>
+                        <input type="text" class="form-control" id="actorname" name="actorname" value="{{ actor.actorname }}">
+                        <label for="gender" class="control-label">性别</label>
+                        <input type="text" class="form-control" id="gender" name="gender" value="{{ actor.gender }}">
+                        <label for="birthday" class="control-label">生日</label>
+                        <input type="text" class="form-control" id="birthday" name="birthday" value="{{ actor.birthday }}">
+                        <label for="nationality" class="control-label">国籍</label>
+                        <input type="text" class="form-control" id="nationality" name="nationality" value="{{ actor.nationality }}">
+                        <label for="bio" class="control-label">简介</label>
+                        <textarea class="form-control" id="bio" name="bio">{{ actor.bio }}</textarea>
+                        <label for="photo" class="control-label">照片</label>
+                        <input type="file" class="form-control" id="photo" name="photo">
+                        {% if actor.photo %}
+                        <img src="{{ actor.photo.url }}" alt="演员照片" style="max-width: 100px; max-height: 100px;">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success">保存并提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.js' %}"></script>
+</body>
+</html>

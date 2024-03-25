@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>添加出演</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.css' %}">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">管理员界面</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                    </ul>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- 主体部分 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span>
+                添加出演
+            </h3>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="col-sm-8">
+                        <label for="movie" class="control-label">电影</label>
+                        <select class="form-control" id="movie" name="movie">
+                            <!-- Assume `movies` is the list of movies passed to the template -->
+                            {% for movie in movies %}
+                                <option value="{{ movie.id }}">{{ movie.moviename }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="actor" class="control-label">演员</label>
+                        <select class="form-control" id="actor" name="actor">
+                            <!-- Assume `actors` is the list of actors passed to the template -->
+                            {% for actor in actors %}
+                                <option value="{{ actor.id }}">{{ actor.actorname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success">添加出演</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script rel="script" src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script rel="script" src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.js' %}"></script>
+</body>
+</html>
